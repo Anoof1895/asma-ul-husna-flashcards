@@ -67,7 +67,7 @@ export const ALLAH_NAMES: AllahName[] = [
   {
     "id": 7,
     "arabic": "الْمُهَيْمِنُ",
-    "dhivehiMeaning": "މޮޅަށް ބެލަހައްޓަވާ އިލާހު"
+    "dhivehiMeaning": "މޮޅަށް ބަލަހައްޓަވާ އިލާހު"
   },
   {
     "id": 8,
@@ -267,7 +267,7 @@ export const ALLAH_NAMES: AllahName[] = [
   {
     "id": 47,
     "arabic": "الْوَدُودُ",
-    "dhivehiMeaning": "ނުހަނުބޮޑަށް ލޯބިވެވޮޑިގެންވާ އިލާހު"
+    "dhivehiMeaning": "ނުހަނު ބޮޑަށް ލޯބިވެވޮޑިގެންވާ އިލާހު"
   },
   {
     "id": 48,
@@ -372,7 +372,7 @@ export const ALLAH_NAMES: AllahName[] = [
   {
     "id": 68,
     "arabic": "الصَّمَدُ",
-    "dhivehiMeaning": "އެއްވެސް އެއްޗަކަށް ބޭނުންވެ ވޮޑިގެންނުވާ އިލާހު"
+    "dhivehiMeaning": "އެއްވެސް އެއްޗަކަށް ބޭނުންވެވޮޑިގެންނުވާ އިލާހު"
   },
   {
     "id": 69,
@@ -412,7 +412,7 @@ export const ALLAH_NAMES: AllahName[] = [
   {
     "id": 76,
     "arabic": "الْبَاطِنُ",
-    "dhivehiMeaning": "ވަންހަނާވެ ވޮޑިގެންވާ އިލާހު"
+    "dhivehiMeaning": "ވަންހަނާވެވޮޑިގެންވާ އިލާހު"
   },
   {
     "id": 77,
