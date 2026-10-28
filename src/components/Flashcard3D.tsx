@@ -162,11 +162,27 @@ export const Flashcard3D: React.FC<Flashcard3DProps> = ({
               rotateY: { type: "spring", stiffness: 240, damping: 24 },
               x: { type: "spring", stiffness: 300, damping: 25 },
             }}
+            style={{
+              transformStyle: "preserve-3d",
+              WebkitTransformStyle: "preserve-3d",
+            }}
           >
             {/* ============================================================== */}
             {/* FRONT FACE: Illuminated Manuscript Card */}
             {/* ============================================================== */}
-            <div className="absolute inset-0 w-full h-full backface-hidden rounded-2xl p-[1px] bg-[#C9A86A]/20 shadow-[0_24px_60px_rgba(0,0,0,0.65)]">
+            <div
+              className="absolute inset-0 w-full h-full backface-hidden rounded-2xl p-[1px] bg-[#C9A86A]/20 shadow-[0_24px_60px_rgba(0,0,0,0.65)]"
+              style={{
+                backfaceVisibility: "hidden",
+                WebkitBackfaceVisibility: "hidden",
+                transform: "rotateY(0deg) translateZ(1px)",
+                WebkitTransform: "rotateY(0deg) translateZ(1px)",
+                opacity: isFlipped ? 0 : 1,
+                visibility: isFlipped ? "hidden" : "visible",
+                pointerEvents: isFlipped ? "none" : "auto",
+                transition: "opacity 0.15s ease 0.1s, visibility 0.15s ease 0.1s",
+              }}
+            >
               {/* Glowing Border Reveal on Hover */}
               <motion.div
                 className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -260,7 +276,19 @@ export const Flashcard3D: React.FC<Flashcard3DProps> = ({
             {/* ============================================================== */}
             {/* BACK FACE: Illuminated Manuscript Meaning Card */}
             {/* ============================================================== */}
-            <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-2xl p-[1px] bg-[#C9A86A]/20 shadow-[0_24px_60px_rgba(0,0,0,0.65)]">
+            <div
+              className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-2xl p-[1px] bg-[#C9A86A]/20 shadow-[0_24px_60px_rgba(0,0,0,0.65)]"
+              style={{
+                backfaceVisibility: "hidden",
+                WebkitBackfaceVisibility: "hidden",
+                transform: "rotateY(180deg) translateZ(1px)",
+                WebkitTransform: "rotateY(180deg) translateZ(1px)",
+                opacity: isFlipped ? 1 : 0,
+                visibility: isFlipped ? "visible" : "hidden",
+                pointerEvents: isFlipped ? "auto" : "none",
+                transition: "opacity 0.15s ease 0.1s, visibility 0.15s ease 0.1s",
+              }}
+            >
               {/* Glowing Border Reveal on Hover */}
               <motion.div
                 className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
