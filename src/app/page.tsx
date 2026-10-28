@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import {
   Layers,
   LayoutGrid,
+  Printer,
   Sparkles,
   HelpCircle,
   X,
@@ -13,9 +14,10 @@ import {
 import { useStudyProgress } from "@/hooks/useStudyProgress";
 import { FlashcardDeck } from "@/components/FlashcardDeck";
 import { NamesGridView } from "@/components/NamesGridView";
+import { PrintableCardsView } from "@/components/PrintableCardsView";
 
 export default function HomePage() {
-  const [activeTab, setActiveTab] = useState<"flashcards" | "browse">("flashcards");
+  const [activeTab, setActiveTab] = useState<"flashcards" | "browse" | "print">("flashcards");
   const [selectedNameId, setSelectedNameId] = useState<number | undefined>(undefined);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [copiedShare, setCopiedShare] = useState(false);
@@ -67,14 +69,14 @@ export default function HomePage() {
     >
       {/* ================= AMBIENT TOP MANUSCRIPT GLOW ================= */}
       <div
-        className="pointer-events-none fixed inset-0 z-0 opacity-100"
+        className="print:hidden pointer-events-none fixed inset-0 z-0 opacity-100"
         style={{
           background: "radial-gradient(ellipse 70% 45% at 50% 25%, rgba(201, 168, 106, 0.06), transparent 70%)",
         }}
       />
 
       {/* ================= HEADER (Responsive with zero overflow on 375px) ================= */}
-      <header className="sticky top-0 z-40 w-full bg-[#0B0A08]/90 backdrop-blur-xl border-b border-[#C9A86A]/15 px-3 sm:px-4 py-2.5 sm:py-3">
+      <header className="print:hidden sticky top-0 z-40 w-full bg-[#0B0A08]/90 backdrop-blur-xl border-b border-[#C9A86A]/15 px-3 sm:px-4 py-2.5 sm:py-3">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-4">
           {/* Top Bar: Logo + Title (Left) and Actions (Right) */}
           <div className="flex items-center justify-between w-full sm:w-auto">
@@ -145,7 +147,7 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => setActiveTab("flashcards")}
-              className={`font-faruma flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+              className={`font-faruma flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                 activeTab === "flashcards"
                   ? "bg-[#C9A86A]/15 text-[#E2C792] border border-[#C9A86A]/30 shadow-sm"
                   : "text-[#9A9183] hover:text-[#F5EFE6]"
@@ -158,7 +160,7 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => setActiveTab("browse")}
-              className={`font-faruma flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+              className={`font-faruma flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                 activeTab === "browse"
                   ? "bg-[#C9A86A]/15 text-[#E2C792] border border-[#C9A86A]/30 shadow-sm"
                   : "text-[#9A9183] hover:text-[#F5EFE6]"
@@ -166,6 +168,19 @@ export default function HomePage() {
             >
               <LayoutGrid className="w-3.5 h-3.5 text-[#9A9183]" />
               <span>{lang === "dv" ? "ހުރިހާ" : "Browse All"}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("print")}
+              className={`font-faruma flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+                activeTab === "print"
+                  ? "bg-[#C9A86A]/15 text-[#E2C792] border border-[#C9A86A]/30 shadow-sm"
+                  : "text-[#9A9183] hover:text-[#F5EFE6]"
+              }`}
+            >
+              <Printer className="w-3.5 h-3.5 text-[#C9A86A]" />
+              <span>{lang === "dv" ? "ޕްރިންޓް" : "Print Cards"}</span>
             </button>
           </nav>
 
@@ -236,6 +251,19 @@ export default function HomePage() {
               <LayoutGrid className="w-3.5 h-3.5 text-[#9A9183]" />
               <span>{lang === "dv" ? "ހުރިހާ" : "Browse All"}</span>
             </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("print")}
+              className={`font-faruma flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                activeTab === "print"
+                  ? "bg-[#C9A86A]/15 text-[#E2C792] border border-[#C9A86A]/30 shadow-sm"
+                  : "text-[#9A9183] hover:text-[#F5EFE6]"
+              }`}
+            >
+              <Printer className="w-3.5 h-3.5 text-[#C9A86A]" />
+              <span>{lang === "dv" ? "ޕްރިންޓް" : "Print"}</span>
+            </button>
           </nav>
         </div>
 
@@ -247,7 +275,7 @@ export default function HomePage() {
       </header>
 
       {/* ================= MAIN CONTENT ================= */}
-      <main className="relative z-10 flex-1 w-full max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-10">
+      <main className="relative z-10 flex-1 w-full max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-10 print:p-0 print:m-0 print:max-w-none">
         {activeTab === "flashcards" ? (
           <FlashcardDeck
             memorized={memorized}
@@ -257,7 +285,7 @@ export default function HomePage() {
             initialNameId={selectedNameId}
             lang={lang}
           />
-        ) : (
+        ) : activeTab === "browse" ? (
           <NamesGridView
             memorized={memorized}
             favorites={favorites}
@@ -266,11 +294,13 @@ export default function HomePage() {
             onSelectName={handleSelectNameFromGrid}
             lang={lang}
           />
+        ) : (
+          <PrintableCardsView lang={lang} />
         )}
       </main>
 
       {/* ================= FOOTER ================= */}
-      <footer className="relative z-10 w-full border-t border-[#C9A86A]/10 bg-[#0B0A08]/70 py-6 mt-8 sm:mt-12 text-center text-xs text-[#9A9183]">
+      <footer className="print:hidden relative z-10 w-full border-t border-[#C9A86A]/10 bg-[#0B0A08]/70 py-6 mt-8 sm:mt-12 text-center text-xs text-[#9A9183]">
         <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p
             className={`text-sm ${lang === "dv" ? "font-faruma text-[#E6DEC8]/90 text-right" : "text-[#E6DEC8]/90 text-left font-normal not-italic"}`}

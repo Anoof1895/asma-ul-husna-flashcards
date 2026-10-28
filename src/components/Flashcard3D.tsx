@@ -334,8 +334,17 @@ export const Flashcard3D: React.FC<Flashcard3DProps> = ({
                     >
                       {name.arabic}
                     </span>
+                    {name.transliteration && (
+                      <div
+                        lang="dv"
+                        dir="rtl"
+                        className="text-xs sm:text-sm font-medium text-[#E2C792]/80 mt-0.5 tracking-wide"
+                      >
+                        {name.transliteration}
+                      </div>
+                    )}
                     {/* Tapered Gold Divider Line */}
-                    <div className="h-px w-24 mx-auto bg-gradient-to-r from-transparent via-[#C9A86A]/35 to-transparent mt-1 mb-4" />
+                    <div className="h-px w-24 mx-auto bg-gradient-to-r from-transparent via-[#C9A86A]/35 to-transparent mt-2 mb-3" />
                   </div>
 
                   {/* Centered RTL Dhivehi Meaning */}

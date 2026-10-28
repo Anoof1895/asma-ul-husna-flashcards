@@ -138,8 +138,8 @@ const GridCard: React.FC<GridCardProps> = ({
           </div>
         </div>
 
-        {/* Center: Arabic Name (py-4 proportions, Ivory #F5EFE6, Zero Tracking) */}
-        <div className="relative z-10 py-4 text-center overflow-visible">
+        {/* Center: Arabic Name & Subtle Dhivehi Transliteration */}
+        <div className="relative z-10 py-3 text-center overflow-visible">
           <h3
             lang="ar"
             dir="rtl"
@@ -148,6 +148,15 @@ const GridCard: React.FC<GridCardProps> = ({
           >
             {name.arabic}
           </h3>
+          {name.transliteration && (
+            <p
+              lang="dv"
+              dir="rtl"
+              className="text-xs sm:text-sm font-medium text-[#C9A86A]/85 mt-1 select-text"
+            >
+              {name.transliteration}
+            </p>
+          )}
         </div>
 
         {/* Soft Tapered Hairline Divider */}
@@ -208,6 +217,9 @@ export const NamesGridView: React.FC<NamesGridViewProps> = ({
 
       const normMeaning = normalizeThaana(item.dhivehiMeaning);
       if (normMeaning.includes(normThaanaQuery)) return true;
+
+      const normTranslit = item.transliteration ? normalizeThaana(item.transliteration) : "";
+      if (normTranslit.includes(normThaanaQuery)) return true;
 
       return false;
     });
