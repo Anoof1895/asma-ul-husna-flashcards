@@ -145,4 +145,8 @@ html, body, button, input, textarea, select, span, div, p, kbd, ::placeholder, .
     background-color: #ffffff !important;
     color: #000000 !important;
   }
+
+  .printable-grid {
+    direction: rtl !important;
+  }
 }

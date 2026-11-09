@@ -7,7 +7,6 @@ import {
   Grid,
   Hash,
   Scissors,
-  Check,
   Sparkles,
   Info,
 } from "lucide-react";
@@ -278,7 +277,11 @@ export function PrintableCardsView({ lang }: PrintableCardsViewProps) {
       </div>
 
       {/* ================= Printable Sheet: Clean White Cards ================= */}
-      <div className={`grid ${getGridClasses()} w-full pb-16 print:pb-0 print:w-full print:max-w-none`}>
+      <div
+        dir="rtl"
+        style={{ direction: "rtl" }}
+        className={`printable-grid grid ${getGridClasses()} w-full pb-16 print:pb-0 print:w-full print:max-w-none`}
+      >
         {ALLAH_NAMES.map((name: AllahName) => {
           const formattedId = String(name.id).padStart(2, "0");
           const transliterationDisplay = showBrackets
@@ -288,6 +291,7 @@ export function PrintableCardsView({ lang }: PrintableCardsViewProps) {
           return (
             <div
               key={name.id}
+              dir="ltr"
               className={`printable-card bg-white text-neutral-900 ${getCardBorderClasses()} aspect-square flex flex-col justify-between items-center text-center p-4 sm:p-6 print:p-4 relative overflow-hidden select-all`}
               style={{
                 breakInside: "avoid",
