@@ -56,7 +56,18 @@ export function PrintableCardsView({ lang }: PrintableCardsViewProps) {
     }
   };
 
-  const getArabicSizeClasses = () => {
+  const getArabicSizeClasses = (isLong: boolean) => {
+    if (isLong) {
+      switch (gridSize) {
+        case "4":
+          return "text-3xl sm:text-4xl print:text-3xl mb-2";
+        case "6":
+          return "text-2xl sm:text-3xl print:text-2xl mb-1.5";
+        case "9":
+        default:
+          return "text-xl sm:text-2xl print:text-xl mb-1";
+      }
+    }
     switch (gridSize) {
       case "4":
         return "text-5xl sm:text-6xl print:text-5xl mb-4";
@@ -68,7 +79,18 @@ export function PrintableCardsView({ lang }: PrintableCardsViewProps) {
     }
   };
 
-  const getTranslitSizeClasses = () => {
+  const getTranslitSizeClasses = (isLong: boolean) => {
+    if (isLong) {
+      switch (gridSize) {
+        case "4":
+          return "text-xl sm:text-2xl print:text-xl font-bold text-black mb-2";
+        case "6":
+          return "text-base sm:text-lg print:text-base font-bold text-black mb-1";
+        case "9":
+        default:
+          return "text-sm sm:text-base print:text-sm font-bold text-black mb-1";
+      }
+    }
     switch (gridSize) {
       case "4":
         return "text-2xl sm:text-3xl print:text-2xl font-bold text-black mb-3";
@@ -80,7 +102,18 @@ export function PrintableCardsView({ lang }: PrintableCardsViewProps) {
     }
   };
 
-  const getMeaningSizeClasses = () => {
+  const getMeaningSizeClasses = (isLong: boolean) => {
+    if (isLong) {
+      switch (gridSize) {
+        case "4":
+          return "text-base sm:text-lg print:text-base font-medium text-neutral-900";
+        case "6":
+          return "text-sm sm:text-base print:text-sm font-medium text-neutral-900";
+        case "9":
+        default:
+          return "text-xs sm:text-sm print:text-xs font-medium text-neutral-900";
+      }
+    }
     switch (gridSize) {
       case "4":
         return "text-lg sm:text-xl print:text-lg font-medium text-neutral-900 leading-[1.85]";
@@ -287,6 +320,9 @@ export function PrintableCardsView({ lang }: PrintableCardsViewProps) {
           const transliterationDisplay = showBrackets
             ? `(${name.transliteration})`
             : name.transliteration;
+          const isLongArabic = name.arabic.length > 18;
+          const isLongTranslit = transliterationDisplay.length > 20;
+          const isLongMeaning = name.dhivehiMeaning.length > 40;
 
           return (
             <div
@@ -299,18 +335,22 @@ export function PrintableCardsView({ lang }: PrintableCardsViewProps) {
               }}
             >
               {/* Optional Top Card Number (#01 Only in Top-Left) */}
-              <div className="w-full flex items-center justify-start text-neutral-400 font-mono text-xs mb-1 min-h-[16px]">
+              <div className="w-full flex items-center justify-start text-neutral-400 font-mono text-xs mb-1 min-h-[16px] shrink-0">
                 {showNumbers ? <span>#{formattedId}</span> : null}
               </div>
 
               {/* Center Content: Large Black Arabic Calligraphy + Transliteration + Definition */}
-              <div className="flex-1 flex flex-col items-center justify-center w-full my-auto">
+              <div className="flex-1 flex flex-col items-center justify-center w-full my-auto min-h-0">
                 {/* 1. Large Bold Black Arabic Calligraphy */}
                 <h3
                   lang="ar"
                   dir="rtl"
-                  className={`font-arabic ${getArabicSizeClasses()} font-bold text-black drop-shadow-none leading-normal select-text`}
-                  style={{ letterSpacing: "normal", fontFeatureSettings: '"kern" 1, "liga" 1, "calt" 1' }}
+                  className={`font-arabic ${getArabicSizeClasses(isLongArabic)} font-bold text-black drop-shadow-none leading-normal select-text`}
+                  style={{
+                    letterSpacing: "normal",
+                    fontFeatureSettings: '"kern" 1, "liga" 1, "calt" 1',
+                    ...(isLongArabic ? { lineHeight: 1.45 } : {}),
+                  }}
                 >
                   {name.arabic}
                 </h3>
@@ -319,26 +359,32 @@ export function PrintableCardsView({ lang }: PrintableCardsViewProps) {
                 <p
                   lang="dv"
                   dir="rtl"
-                  className={`font-faruma ${getTranslitSizeClasses()} select-text`}
+                  className={`font-faruma ${getTranslitSizeClasses(isLongTranslit)} select-text`}
+                  style={isLongTranslit ? { lineHeight: 1.5 } : undefined}
                 >
                   {transliterationDisplay}
                 </p>
 
                 {/* Subtle Divider Hairline */}
-                <div className="w-14 h-px bg-neutral-200 my-2.5 print:my-1.5" />
+                <div
+                  className={`w-14 h-px bg-neutral-200 ${
+                    isLongArabic || isLongMeaning ? "my-1.5 print:my-1" : "my-2.5 print:my-1.5"
+                  }`}
+                />
 
                 {/* 3. Bottom Dhivehi Definition (Larger & Darker Neutral-900) */}
                 <p
                   lang="dv"
                   dir="rtl"
-                  className={`font-faruma ${getMeaningSizeClasses()} max-w-[92%] select-text`}
+                  className={`font-faruma ${getMeaningSizeClasses(isLongMeaning)} max-w-[92%] select-text`}
+                  style={isLongMeaning ? { lineHeight: 1.6 } : undefined}
                 >
                   {name.dhivehiMeaning}
                 </p>
               </div>
 
               {/* Bottom Spacer to balance top number min-height */}
-              <div className="w-full min-h-[16px]" />
+              <div className="w-full min-h-[16px] shrink-0" />
             </div>
           );
         })}
