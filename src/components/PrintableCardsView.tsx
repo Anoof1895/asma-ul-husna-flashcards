@@ -145,7 +145,12 @@ export function PrintableCardsView({ lang }: PrintableCardsViewProps) {
     { names: ALLAH_NAMES.slice(94, 99), colsClass: "grid-cols-7" }, // Row 8: 5 cards right-aligned in 7-col RTL grid (#95-#99)
   ];
 
-  const renderAllPagesCell = (name: AllahName, page: "page1" | "page2") => {
+  const renderAllPagesCell = (
+    name: AllahName,
+    page: "page1" | "page2",
+    showBottomBorder: boolean,
+    showLeftBorder: boolean
+  ) => {
     const formattedId = String(name.id).padStart(2, "0");
     const transliterationDisplay = showBrackets
       ? `(${name.transliteration})`
@@ -192,7 +197,11 @@ export function PrintableCardsView({ lang }: PrintableCardsViewProps) {
       <div
         key={name.id}
         dir="ltr"
-        className="relative bg-white text-black border-b border-l border-black flex flex-col items-center justify-center text-center px-1 py-0.5 overflow-hidden select-all h-full min-h-0"
+        className={`all-pages-cell relative bg-white text-black ${
+          showBottomBorder ? "border-b border-black" : ""
+        } ${
+          showLeftBorder ? "border-l border-black" : ""
+        } flex flex-col items-center justify-center text-center px-1 py-0.5 print:py-[1px] overflow-hidden select-all h-full min-h-0`}
         style={{
           breakInside: "avoid",
           pageBreakInside: "avoid",
@@ -463,7 +472,7 @@ export function PrintableCardsView({ lang }: PrintableCardsViewProps) {
 
       {/* ================= Printable Sheet: Clean White Cards ================= */}
       {isAllPages ? (
-        <div className="w-full overflow-x-auto pb-16 print:overflow-visible print:pb-0">
+        <div className="w-full overflow-x-auto pb-16 print:overflow-visible print:pb-0 print:w-full">
           <div className="all-pages-stack">
             {/* Page 1: Names #1-#49 (7x7 RTL Grid) */}
             <section
@@ -473,9 +482,13 @@ export function PrintableCardsView({ lang }: PrintableCardsViewProps) {
               <div
                 dir="rtl"
                 style={{ direction: "rtl" }}
-                className="printable-grid grid grid-cols-7 grid-rows-7 w-full h-full border-t border-r border-black"
+                className="printable-grid grid grid-cols-7 grid-rows-7 w-full h-full box-border border border-black"
               >
-                {page1Names.map((name) => renderAllPagesCell(name, "page1"))}
+                {page1Names.map((name, idx) => {
+                  const rowIndex = Math.floor(idx / 7);
+                  const colIndex = idx % 7;
+                  return renderAllPagesCell(name, "page1", rowIndex < 6, colIndex < 6);
+                })}
               </div>
             </section>
 
@@ -487,18 +500,28 @@ export function PrintableCardsView({ lang }: PrintableCardsViewProps) {
               <div
                 dir="rtl"
                 style={{ direction: "rtl" }}
-                className="printable-grid grid grid-rows-8 w-full h-full border-t border-black"
+                className="printable-grid grid grid-rows-8 w-full h-full box-border border border-black"
               >
-                {page2Rows.map((row, rowIndex) => (
-                  <div
-                    key={rowIndex}
-                    dir="rtl"
-                    style={{ direction: "rtl" }}
-                    className={`grid ${row.colsClass} h-full min-h-0 border-r border-black`}
-                  >
-                    {row.names.map((name) => renderAllPagesCell(name, "page2"))}
-                  </div>
-                ))}
+                {page2Rows.map((row, rowIndex) => {
+                  const isLastRow = rowIndex === page2Rows.length - 1;
+                  return (
+                    <div
+                      key={rowIndex}
+                      dir="rtl"
+                      style={{ direction: "rtl" }}
+                      className={`grid ${row.colsClass} h-full min-h-0`}
+                    >
+                      {row.names.map((name, colIndex) =>
+                        renderAllPagesCell(
+                          name,
+                          "page2",
+                          !isLastRow,
+                          isLastRow ? true : colIndex < row.names.length - 1
+                        )
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </section>
           </div>

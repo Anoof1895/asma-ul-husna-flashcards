@@ -161,20 +161,25 @@ html, body, button, input, textarea, select, span, div, p, kbd, ::placeholder, .
 
   .all-pages-stack {
     display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
     gap: 0 !important;
     padding: 0 !important;
     margin: 0 !important;
   }
 
   .all-pages-sheet {
-    width: 190mm !important;
-    height: 274mm !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: 268mm !important;
     min-height: 0 !important;
     padding: 0 !important;
-    margin: 0 auto !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
     box-shadow: none !important;
     border-radius: 0 !important;
-    overflow: hidden !important;
+    overflow: visible !important;
     break-inside: avoid !important;
     page-break-inside: avoid !important;
     -webkit-print-color-adjust: exact !important;
