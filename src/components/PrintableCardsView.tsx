@@ -15,14 +15,21 @@ interface PrintableCardsViewProps {
   lang: "en" | "dv";
 }
 
-type GridSize = "4" | "6" | "9";
+type GridSize = "4" | "6" | "9" | "all";
 type BorderStyle = "rounded" | "dashed" | "hairline";
+
+interface Page2RowConfig {
+  names: AllahName[];
+  colsClass: string;
+}
 
 export function PrintableCardsView({ lang }: PrintableCardsViewProps) {
   const [gridSize, setGridSize] = useState<GridSize>("6");
   const [showNumbers, setShowNumbers] = useState<boolean>(false);
-  const [showBrackets, setShowBrackets] = useState<boolean>(false);
+  const [showBrackets, setShowBrackets] = useState<boolean>(true);
   const [borderStyle, setBorderStyle] = useState<BorderStyle>("rounded");
+
+  const isAllPages = gridSize === "all";
 
   const handlePrint = () => {
     window.print();
@@ -125,8 +132,127 @@ export function PrintableCardsView({ lang }: PrintableCardsViewProps) {
     }
   };
 
+  const page1Names = ALLAH_NAMES.slice(0, 49);
+
+  const page2Rows: Page2RowConfig[] = [
+    { names: ALLAH_NAMES.slice(49, 56), colsClass: "grid-cols-7" }, // Rows 1-4: 7 cards per row (#50-#77)
+    { names: ALLAH_NAMES.slice(56, 63), colsClass: "grid-cols-7" },
+    { names: ALLAH_NAMES.slice(63, 70), colsClass: "grid-cols-7" },
+    { names: ALLAH_NAMES.slice(70, 77), colsClass: "grid-cols-7" },
+    { names: ALLAH_NAMES.slice(77, 83), colsClass: "grid-cols-6" }, // Row 5: 6 cards spanning full width (#78-#83)
+    { names: ALLAH_NAMES.slice(83, 88), colsClass: "grid-cols-5" }, // Row 6: 5 cards spanning full width (#84-#88)
+    { names: ALLAH_NAMES.slice(88, 94), colsClass: "grid-cols-6" }, // Row 7: 6 cards spanning full width (#89-#94)
+    { names: ALLAH_NAMES.slice(94, 99), colsClass: "grid-cols-7" }, // Row 8: 5 cards right-aligned in 7-col RTL grid (#95-#99)
+  ];
+
+  const renderAllPagesCell = (name: AllahName, page: "page1" | "page2") => {
+    const formattedId = String(name.id).padStart(2, "0");
+    const transliterationDisplay = showBrackets
+      ? `(${name.transliteration})`
+      : name.transliteration;
+
+    const arabicLen = name.arabic.length;
+    const translitLen = transliterationDisplay.length;
+    const meaningLen = name.dhivehiMeaning.length;
+
+    const arabicFontSize =
+      page === "page1"
+        ? arabicLen > 16
+          ? "9.5pt"
+          : "11.5pt"
+        : arabicLen > 20
+        ? "9pt"
+        : arabicLen > 16
+        ? "10pt"
+        : "10.8pt";
+
+    const translitFontSize =
+      page === "page1"
+        ? translitLen > 18
+          ? "6.4pt"
+          : "7.2pt"
+        : translitLen > 18
+        ? "6pt"
+        : "6.8pt";
+
+    const meaningFontSize =
+      page === "page1"
+        ? meaningLen > 55
+          ? "5.6pt"
+          : meaningLen > 36
+          ? "6.1pt"
+          : "6.7pt"
+        : meaningLen > 55
+        ? "5.2pt"
+        : meaningLen > 36
+        ? "5.8pt"
+        : "6.3pt";
+
+    return (
+      <div
+        key={name.id}
+        dir="ltr"
+        className="relative bg-white text-black border-b border-l border-black flex flex-col items-center justify-center text-center px-1 py-0.5 overflow-hidden select-all h-full min-h-0"
+        style={{
+          breakInside: "avoid",
+          pageBreakInside: "avoid",
+        }}
+      >
+        {showNumbers ? (
+          <span className="absolute top-[2px] left-[3.5px] text-[6pt] leading-none text-neutral-500 font-mono">
+            #{formattedId}
+          </span>
+        ) : null}
+
+        <div
+          className={`flex flex-col items-center justify-center w-full min-h-0 ${
+            showNumbers ? "pt-1.5" : ""
+          }`}
+        >
+          <h3
+            lang="ar"
+            dir="rtl"
+            className="font-arabic font-bold text-black select-text w-full"
+            style={{
+              fontSize: arabicFontSize,
+              lineHeight: page === "page1" ? 1.28 : 1.22,
+              letterSpacing: "normal",
+              fontFeatureSettings: '"kern" 1, "liga" 1, "calt" 1',
+            }}
+          >
+            {name.arabic}
+          </h3>
+
+          <p
+            lang="dv"
+            dir="rtl"
+            className="font-faruma font-bold text-black select-text w-full mt-[1px]"
+            style={{
+              fontSize: translitFontSize,
+              lineHeight: page === "page1" ? 1.28 : 1.22,
+            }}
+          >
+            {transliterationDisplay}
+          </p>
+
+          <p
+            lang="dv"
+            dir="rtl"
+            className="font-faruma font-medium text-neutral-900 select-text w-full mt-[1px]"
+            style={{
+              fontSize: meaningFontSize,
+              lineHeight: page === "page1" ? 1.28 : 1.22,
+            }}
+          >
+            {name.dhivehiMeaning}
+          </p>
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="w-full max-w-6xl mx-auto px-2 sm:px-4">
+    <div className="w-full max-w-6xl mx-auto px-2 sm:px-4 print:max-w-none print:px-0 print:mx-0">
       {/* ================= Printable View Controls (Hidden in Print) ================= */}
       <div className="print:hidden mb-8 p-4 sm:p-5 rounded-2xl bg-[#0E0C09]/95 backdrop-blur-xl border border-white/[0.08] shadow-2xl space-y-4">
         {/* Top Header & Print Action Button */}
@@ -163,11 +289,11 @@ export function PrintableCardsView({ lang }: PrintableCardsViewProps) {
               <Grid className="w-3.5 h-3.5 text-[#C9A86A]" />
               {lang === "dv" ? "ކާޑުގެ ސައިޒު" : "Cards per Page"}
             </span>
-            <div className="flex items-center gap-1 mt-1">
+            <div className="grid grid-cols-2 gap-1 mt-1">
               <button
                 type="button"
                 onClick={() => setGridSize("4")}
-                className={`flex-1 py-1.5 px-2 rounded-lg text-center transition ${
+                className={`py-1.5 px-2 rounded-lg text-center transition whitespace-nowrap ${
                   gridSize === "4"
                     ? "bg-[#C9A86A]/20 text-[#E2C792] font-semibold border border-[#C9A86A]/40"
                     : "text-[#9A9183] hover:text-[#F5EFE6]"
@@ -178,7 +304,7 @@ export function PrintableCardsView({ lang }: PrintableCardsViewProps) {
               <button
                 type="button"
                 onClick={() => setGridSize("6")}
-                className={`flex-1 py-1.5 px-2 rounded-lg text-center transition ${
+                className={`py-1.5 px-2 rounded-lg text-center transition whitespace-nowrap ${
                   gridSize === "6"
                     ? "bg-[#C9A86A]/20 text-[#E2C792] font-semibold border border-[#C9A86A]/40"
                     : "text-[#9A9183] hover:text-[#F5EFE6]"
@@ -189,7 +315,7 @@ export function PrintableCardsView({ lang }: PrintableCardsViewProps) {
               <button
                 type="button"
                 onClick={() => setGridSize("9")}
-                className={`flex-1 py-1.5 px-2 rounded-lg text-center transition ${
+                className={`py-1.5 px-2 rounded-lg text-center transition whitespace-nowrap ${
                   gridSize === "9"
                     ? "bg-[#C9A86A]/20 text-[#E2C792] font-semibold border border-[#C9A86A]/40"
                     : "text-[#9A9183] hover:text-[#F5EFE6]"
@@ -197,18 +323,42 @@ export function PrintableCardsView({ lang }: PrintableCardsViewProps) {
               >
                 3×3 (9)
               </button>
+              <button
+                type="button"
+                onClick={() => setGridSize("all")}
+                className={`py-1.5 px-2 rounded-lg text-center transition whitespace-nowrap ${
+                  gridSize === "all"
+                    ? "bg-[#C9A86A]/20 text-[#E2C792] font-semibold border border-[#C9A86A]/40"
+                    : "text-[#9A9183] hover:text-[#F5EFE6]"
+                }`}
+              >
+                All (2 Pages)
+              </button>
             </div>
           </div>
 
-          {/* 2. Border Style */}
-          <div className="flex flex-col gap-1.5 p-3 rounded-xl bg-[#14120E] border border-white/[0.06]">
-            <span className="text-[#9A9183] font-medium flex items-center gap-1.5">
-              <Scissors className="w-3.5 h-3.5 text-[#C9A86A]" />
-              {lang === "dv" ? "ކާޑުގެ ކައިރިފަށު" : "Border Style"}
-            </span>
+          {/* 2. Border Style (Disabled in All 2 Pages mode) */}
+          <div
+            aria-disabled={isAllPages}
+            className={`flex flex-col gap-1.5 p-3 rounded-xl bg-[#14120E] border border-white/[0.06] transition-opacity ${
+              isAllPages ? "opacity-40 pointer-events-none select-none" : ""
+            }`}
+          >
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[#9A9183] font-medium flex items-center gap-1.5">
+                <Scissors className="w-3.5 h-3.5 text-[#C9A86A]" />
+                {lang === "dv" ? "ކާޑުގެ ކައިރިފަށު" : "Border Style"}
+              </span>
+              {isAllPages ? (
+                <span className="text-[10px] text-[#C9A86A]">
+                  {lang === "dv" ? "ގްރިޑް ރޮނގު" : "1px Grid"}
+                </span>
+              ) : null}
+            </div>
             <div className="flex items-center gap-1 mt-1">
               <button
                 type="button"
+                disabled={isAllPages}
                 onClick={() => setBorderStyle("rounded")}
                 className={`flex-1 py-1.5 px-2 rounded-lg text-center transition ${
                   borderStyle === "rounded"
@@ -220,6 +370,7 @@ export function PrintableCardsView({ lang }: PrintableCardsViewProps) {
               </button>
               <button
                 type="button"
+                disabled={isAllPages}
                 onClick={() => setBorderStyle("dashed")}
                 className={`flex-1 py-1.5 px-2 rounded-lg text-center transition ${
                   borderStyle === "dashed"
@@ -231,6 +382,7 @@ export function PrintableCardsView({ lang }: PrintableCardsViewProps) {
               </button>
               <button
                 type="button"
+                disabled={isAllPages}
                 onClick={() => setBorderStyle("hairline")}
                 className={`flex-1 py-1.5 px-2 rounded-lg text-center transition ${
                   borderStyle === "hairline"
@@ -310,85 +462,128 @@ export function PrintableCardsView({ lang }: PrintableCardsViewProps) {
       </div>
 
       {/* ================= Printable Sheet: Clean White Cards ================= */}
-      <div
-        dir="rtl"
-        style={{ direction: "rtl" }}
-        className={`printable-grid grid ${getGridClasses()} w-full pb-16 print:pb-0 print:w-full print:max-w-none`}
-      >
-        {ALLAH_NAMES.map((name: AllahName) => {
-          const formattedId = String(name.id).padStart(2, "0");
-          const transliterationDisplay = showBrackets
-            ? `(${name.transliteration})`
-            : name.transliteration;
-          const isLongArabic = name.arabic.length > 18;
-          const isLongTranslit = transliterationDisplay.length > 20;
-          const isLongMeaning = name.dhivehiMeaning.length > 40;
-
-          return (
-            <div
-              key={name.id}
-              dir="ltr"
-              className={`printable-card bg-white text-neutral-900 ${getCardBorderClasses()} aspect-square flex flex-col justify-between items-center text-center p-4 sm:p-6 print:p-4 relative overflow-hidden select-all`}
-              style={{
-                breakInside: "avoid",
-                pageBreakInside: "avoid",
-              }}
+      {isAllPages ? (
+        <div className="w-full overflow-x-auto pb-16 print:overflow-visible print:pb-0">
+          <div className="all-pages-stack">
+            {/* Page 1: Names #1-#49 (7x7 RTL Grid) */}
+            <section
+              aria-label="Printable A4 Page 1 (Names 1 to 49)"
+              className="all-pages-sheet all-pages-sheet-break shadow-2xl print:shadow-none"
             >
-              {/* Optional Top Card Number (#01 Only in Top-Left) */}
-              <div className="w-full flex items-center justify-start text-neutral-400 font-mono text-xs mb-1 min-h-[16px] shrink-0">
-                {showNumbers ? <span>#{formattedId}</span> : null}
+              <div
+                dir="rtl"
+                style={{ direction: "rtl" }}
+                className="printable-grid grid grid-cols-7 grid-rows-7 w-full h-full border-t border-r border-black"
+              >
+                {page1Names.map((name) => renderAllPagesCell(name, "page1"))}
               </div>
+            </section>
 
-              {/* Center Content: Large Black Arabic Calligraphy + Transliteration + Definition */}
-              <div className="flex-1 flex flex-col items-center justify-center w-full my-auto min-h-0">
-                {/* 1. Large Bold Black Arabic Calligraphy */}
-                <h3
-                  lang="ar"
-                  dir="rtl"
-                  className={`font-arabic ${getArabicSizeClasses(isLongArabic)} font-bold text-black drop-shadow-none leading-normal select-text`}
-                  style={{
-                    letterSpacing: "normal",
-                    fontFeatureSettings: '"kern" 1, "liga" 1, "calt" 1',
-                    ...(isLongArabic ? { lineHeight: 1.45 } : {}),
-                  }}
-                >
-                  {name.arabic}
-                </h3>
-
-                {/* 2. Middle Dhivehi Transliteration (Large & Bold) */}
-                <p
-                  lang="dv"
-                  dir="rtl"
-                  className={`font-faruma ${getTranslitSizeClasses(isLongTranslit)} select-text`}
-                  style={isLongTranslit ? { lineHeight: 1.5 } : undefined}
-                >
-                  {transliterationDisplay}
-                </p>
-
-                {/* Subtle Divider Hairline */}
-                <div
-                  className={`w-14 h-px bg-neutral-200 ${
-                    isLongArabic || isLongMeaning ? "my-1.5 print:my-1" : "my-2.5 print:my-1.5"
-                  }`}
-                />
-
-                {/* 3. Bottom Dhivehi Definition (Larger & Darker Neutral-900) */}
-                <p
-                  lang="dv"
-                  dir="rtl"
-                  className={`font-faruma ${getMeaningSizeClasses(isLongMeaning)} max-w-[92%] select-text`}
-                  style={isLongMeaning ? { lineHeight: 1.6 } : undefined}
-                >
-                  {name.dhivehiMeaning}
-                </p>
+            {/* Page 2: Names #50-#99 (8 RTL Rows) */}
+            <section
+              aria-label="Printable A4 Page 2 (Names 50 to 99)"
+              className="all-pages-sheet shadow-2xl print:shadow-none"
+            >
+              <div
+                dir="rtl"
+                style={{ direction: "rtl" }}
+                className="printable-grid grid grid-rows-8 w-full h-full border-t border-black"
+              >
+                {page2Rows.map((row, rowIndex) => (
+                  <div
+                    key={rowIndex}
+                    dir="rtl"
+                    style={{ direction: "rtl" }}
+                    className={`grid ${row.colsClass} h-full min-h-0 border-r border-black`}
+                  >
+                    {row.names.map((name) => renderAllPagesCell(name, "page2"))}
+                  </div>
+                ))}
               </div>
+            </section>
+          </div>
+        </div>
+      ) : (
+        <div
+          dir="rtl"
+          style={{ direction: "rtl" }}
+          className={`printable-grid grid ${getGridClasses()} w-full pb-16 print:pb-0 print:w-full print:max-w-none`}
+        >
+          {ALLAH_NAMES.map((name: AllahName) => {
+            const formattedId = String(name.id).padStart(2, "0");
+            const transliterationDisplay = showBrackets
+              ? `(${name.transliteration})`
+              : name.transliteration;
+            const isLongArabic = name.arabic.length > 18;
+            const isLongTranslit = transliterationDisplay.length > 20;
+            const isLongMeaning = name.dhivehiMeaning.length > 40;
 
-              {/* Bottom Spacer to balance top number min-height */}
-              <div className="w-full min-h-[16px] shrink-0" />
-            </div>
-          );
-        })}
-      </div>
+            return (
+              <div
+                key={name.id}
+                dir="ltr"
+                className={`printable-card bg-white text-neutral-900 ${getCardBorderClasses()} aspect-square flex flex-col justify-between items-center text-center p-4 sm:p-6 print:p-4 relative overflow-hidden select-all`}
+                style={{
+                  breakInside: "avoid",
+                  pageBreakInside: "avoid",
+                }}
+              >
+                {/* Optional Top Card Number (#01 Only in Top-Left) */}
+                <div className="w-full flex items-center justify-start text-neutral-400 font-mono text-xs mb-1 min-h-[16px] shrink-0">
+                  {showNumbers ? <span>#{formattedId}</span> : null}
+                </div>
+
+                {/* Center Content: Large Black Arabic Calligraphy + Transliteration + Definition */}
+                <div className="flex-1 flex flex-col items-center justify-center w-full my-auto min-h-0">
+                  {/* 1. Large Bold Black Arabic Calligraphy */}
+                  <h3
+                    lang="ar"
+                    dir="rtl"
+                    className={`font-arabic ${getArabicSizeClasses(isLongArabic)} font-bold text-black drop-shadow-none leading-normal select-text`}
+                    style={{
+                      letterSpacing: "normal",
+                      fontFeatureSettings: '"kern" 1, "liga" 1, "calt" 1',
+                      ...(isLongArabic ? { lineHeight: 1.45 } : {}),
+                    }}
+                  >
+                    {name.arabic}
+                  </h3>
+
+                  {/* 2. Middle Dhivehi Transliteration (Large & Bold) */}
+                  <p
+                    lang="dv"
+                    dir="rtl"
+                    className={`font-faruma ${getTranslitSizeClasses(isLongTranslit)} select-text`}
+                    style={isLongTranslit ? { lineHeight: 1.5 } : undefined}
+                  >
+                    {transliterationDisplay}
+                  </p>
+
+                  {/* Subtle Divider Hairline */}
+                  <div
+                    className={`w-14 h-px bg-neutral-200 ${
+                      isLongArabic || isLongMeaning ? "my-1.5 print:my-1" : "my-2.5 print:my-1.5"
+                    }`}
+                  />
+
+                  {/* 3. Bottom Dhivehi Definition (Larger & Darker Neutral-900) */}
+                  <p
+                    lang="dv"
+                    dir="rtl"
+                    className={`font-faruma ${getMeaningSizeClasses(isLongMeaning)} max-w-[92%] select-text`}
+                    style={isLongMeaning ? { lineHeight: 1.6 } : undefined}
+                  >
+                    {name.dhivehiMeaning}
+                  </p>
+                </div>
+
+                {/* Bottom Spacer to balance top number min-height */}
+                <div className="w-full min-h-[16px] shrink-0" />
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
